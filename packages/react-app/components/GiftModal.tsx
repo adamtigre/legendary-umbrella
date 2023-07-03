@@ -13,8 +13,6 @@ import { useDebounce } from "use-debounce";
 // Import our custom useContractSend hook to write a product to the marketplace contract
 import { useContractSend } from "@/hooks/contract/useContractWrite";
 // 
-import { useContractCall } from "@/hooks/contract/useContractRead";
-// Import the erc20 contract abi to get the cUSD balance
 import erc20Instance from "../abi/erc20.json";
 import { useContractApprove } from "@/hooks/contract/useApprove";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
@@ -115,7 +113,7 @@ const GiftModal = ({id, price, bigPrice, setLoading, setError}:any) => {
         </button>
 
         {/* Modal */}
-        {visibles && (
+        {visible && (
           <div
             className="fixed z-40 overflow-y-auto top-0 w-full h-full left-0"
             id="modal"
