@@ -33,6 +33,27 @@ const TransferTransactions = () => {
     //
     const [transactions, setTransactions] = useState<Transaction[] | null>()
     const { data: rawTxns }: any = useContractCall("readTransferTransactions", [], true, address);
+  
+    // Format the product data that we read from the smart contract
+    const getFormatTxn = useCallback(() => {
+        if (!rawTxns) return null;
+        const _txns: Transaction[] = [];
+        for (let i:any = 0; i < rawTxns.length; i++) {
+            _txns.push({
+                from: rawTxns[i][0],
+                to: rawTxns[i][1],
+                productIndex: Number(rawTxns[i][2]),
+                quantity: Number(rawTxns[i][3]),
+                timestamp: Number(rawTxns[i][4])
+            })
+        }
+        setTransactions(_txns);
+        }, [rawTxns]);
+    
+        // Call the getFormatProduct function when the rawProduct state changes
+        useEffect(() => {
+        getFormatTxn();
+        }, [getFormatTxn]);
 
   // Define the JSX that will be rendered
   return (
