@@ -50,7 +50,7 @@ const TransferTransactions = () => {
         </button>
 
         {/* Modal */}
-        {isvisible && (
+        {visible && (
           <div
             className="fixed z-40 overflow-y-auto top-0 w-full left-0"
             id="modal"
