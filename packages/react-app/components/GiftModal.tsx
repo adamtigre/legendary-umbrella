@@ -1,9 +1,9 @@
 // This component is used to add a product to the marketplace and show the user's cUSD balance
 
 // Importing the dependencies
-import { useEffect, useCallback, useState } from "react";
+import { useState } from "react";
 // import ethers to convert the product price to wei
-import { BigNumber, ethers } from "ethers";
+import { BigNumber } from "ethers";
 // Import the useAccount and useBalance hooks to get the user's address and balance
 import { useAccount, useBalance } from "wagmi";
 // Import the toast library to display notifications
@@ -12,53 +12,42 @@ import { toast } from "react-toastify";
 import { useDebounce } from "use-debounce";
 // Import our custom useContractSend hook to write a product to the marketplace contract
 import { useContractSend } from "@/hooks/contract/useContractWrite";
-// 
-import { useContractCall } from "@/hooks/contract/useContractRead";
-// Import the erc20 contract abi to get the cUSD balance
-import erc20Instance from "../abi/erc20.json";
+// Import useContractApprove to approve gift transactions
 import { useContractApprove } from "@/hooks/contract/useApprove";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
-
-// Define the interface for the product, an interface is a type that describes the properties of an object
 
 // Define the AddProductModal component
 const GiftModal = ({id, price, bigPrice, setLoading, setError}:any) => {
   // The visible state is used to toggle the visibility of the modal
   const [visible, setVisible] = useState(false);
-  //
+  // Address of product receiver
   const [receiver, setReceiver] = useState<string>("0x0000000000000000000000000000000000000000");
-  //
+  // Quantity of product to send
   const [quantity, setQuantity] = useState<number>(1)
    // Get the user's address and balance
-   const { address, isConnected } = useAccount();
-   const { data: cusdBalance } = useBalance({
-     address,
-     token: erc20Instance.address as `0x${string}`,
-   });
-
+   const { address } = useAccount();
     // The following states are used to debounce the input fields
     const [debouncedReceiver] = useDebounce(receiver, 500);
     const [debouncedQuantity] = useDebounce(quantity, 500);
-
+    // Use useContractApprove to approve product to be gifted
     const { writeAsync: approve } = useContractApprove(
         String(BigNumber.from(String(bigPrice)).mul(quantity))
       );
-
+      // Use useContractSend to gift the product
     const {writeAsync: executeTransfer} = useContractSend("executeTransfer", [
         debouncedReceiver, 
         id,
         debouncedQuantity
     ]);
 
-         // Use the useConnectModal hook to trigger the wallet connect modal
+    // Use the useConnectModal hook to trigger the wallet connect modal
   const { openConnectModal } = useConnectModal();
 
-      // Define the handlePurchase function which handles the purchase interaction with the smart contract
+  // Define the handleGift function which handles the gifting interaction with the smart contract
   const handleGift = async () => {
     if (!approve) {
       throw "Failed to approve product";
     } 
-
     if (!executeTransfer) {
       throw "Error occured while gifting product"
     }
@@ -67,13 +56,13 @@ const GiftModal = ({id, price, bigPrice, setLoading, setError}:any) => {
     // Wait for the transaction to be mined, (1) is the number of confirmations we want to wait for
     await approveTx.wait(1);
     setLoading("Transferring product in process...");
-    // Once the transaction is mined, purchase the product via our marketplace contract buyProduct function
+    // Once the transaction is mined, transfer the product via our marketplace contract executeTransfer function
     const res = await executeTransfer();
     // Wait for the transaction to be mined
     await res.wait();
   };
 
-  // Define the purchaseProduct function that is called when the user clicks the purchase button
+  // Define the gift function that is called when the user clicks the gift button
   const gift = async (e: any) => {
     e.preventDefault();
     setLoading("Approving ...");
