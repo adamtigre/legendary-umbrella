@@ -19,6 +19,9 @@ import { useContractApprove } from "@/hooks/contract/useApprove";
 import { useContractCall } from "@/hooks/contract/useContractRead";
 import { useContractSend } from "@/hooks/contract/useContractWrite";
 
+import ProductTransactions from "./ProductTransactions";
+import GiftModal from "./GiftModal";
+
 // Define the interface for the product, an interface is a type that describes the properties of an object
 interface Product {
   name: string;
@@ -37,7 +40,7 @@ const Product = ({ id, setError, setLoading, clear }: any) => {
   // Use the useContractCall hook to read the data of the product with the id passed in, from the marketplace contract
   const { data: rawProduct }: any = useContractCall("readProduct", [id], true);
   // Use the useContractSend hook to purchase the product with the id passed in, via the marketplace contract
-  const { writeAsync: purchase } = useContractSend("buyProduct", [Number(id)]);
+  const { writeAsync: purchase } = useContractSend("buyProduct", [Number(id), Number(1)]);
   const [product, setProduct] = useState<Product | null>(null);
   // Use the useContractApprove hook to approve the spending of the product's price, for the ERC20 cUSD contract
   const { writeAsync: approve } = useContractApprove(
@@ -66,8 +69,12 @@ const Product = ({ id, setError, setLoading, clear }: any) => {
 
   // Define the handlePurchase function which handles the purchase interaction with the smart contract
   const handlePurchase = async () => {
-    if (!approve || !purchase) {
-      throw "Failed to purchase this product";
+    if (!approve) {
+      throw "Failed to approve";
+    } 
+
+    if (!purchase) {
+      throw "Failed to purchase"
     }
     // Approve the spending of the product's price, for the ERC20 cUSD contract
     const approveTx = await approve();
@@ -147,7 +154,7 @@ const Product = ({ id, setError, setLoading, clear }: any) => {
           <div className={"pt-1"}>
             {/* Show the product name */}
             <p className="mt-4 text-2xl font-bold">{product.name}</p>
-            <div className={"h-40 overflow-y-hidden scrollbar-hide"}>
+            <div className={"h-20 overflow-y-hidden scrollbar-hide"}>
               {/* Show the product description */}
               <h3 className="mt-4 text-sm text-gray-700">
                 {product.description}
@@ -170,6 +177,8 @@ const Product = ({ id, setError, setLoading, clear }: any) => {
               {/* Show the product price in cUSD */}
               Buy for {productPriceFromWei} cUSD
             </button>
+            <ProductTransactions id={id}/>
+            <GiftModal id={id} price={productPriceFromWei} bigPrice={product.price} setLoading={setLoading} setError={setError} />
           </div>
         </div>
       </p>

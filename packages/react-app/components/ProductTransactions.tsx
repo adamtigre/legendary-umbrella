@@ -2,11 +2,20 @@
 
 // Importing the dependencies
 import { useEffect, useCallback, useState } from "react";
+// import ethers to convert the product price to wei
+import { ethers } from "ethers";
+// Import the useAccount and useBalance hooks to get the user's address and balance
+import { useAccount, useBalance } from "wagmi";
+// Import the toast library to display notifications
+import { toast } from "react-toastify";
+// Import the useDebounce hook to debounce the input fields
+import { useDebounce } from "use-debounce";
 // Import our custom useContractSend hook to write a product to the marketplace contract
 import { useContractCall } from "@/hooks/contract/useContractRead";
+// Import the erc20 contract abi to get the cUSD balance
+import erc20Instance from "../abi/erc20.json";
 
-
-// Define the interface for the Transaction, an interface is a type that describes the properties of an object
+// Define the interface for the product, an interface is a type that describes the properties of an object
 interface Transaction {
     productIndex: number;
     buyer: string;
@@ -18,30 +27,30 @@ interface Transaction {
 const ProductTransactions = ({id}:any) => {
   // The visible state is used to toggle the visibility of the modal
   const [visible, setVisible] = useState(false);
-  // State to store transactions
+  //
   const [transactions, setTransactions] = useState<Transaction[]| null>();
-  // Get purchase transactions from contract
+  //
   const { data: rawTxns }: any = useContractCall("readPurchaseTransactions", [id], true);
 
 // Format the product data that we read from the smart contract
 const getFormatTxn = useCallback(() => {
-if (!rawTxns) return null;
-const _txns: Transaction[] = [];
-for (let i:any = 0; i < rawTxns.length; i++) {
-    _txns.push({
-        productIndex: Number(rawTxns[i][0]),
-        buyer: rawTxns[i][1],
-        quantity: Number(rawTxns[i][2]),
-        timestamp: Number(rawTxns[i][3])
-    })
-}
-setTransactions(_txns);
-}, [rawTxns]);
+    if (!rawTxns) return null;
+    const _txns: Transaction[] = [];
+    for (let i:any = 0; i < rawTxns.length; i++) {
+        _txns.push({
+            productIndex: Number(rawTxns[i][0]),
+            buyer: rawTxns[i][1],
+            quantity: Number(rawTxns[i][2]),
+            timestamp: Number(rawTxns[i][3])
+        })
+    }
+    setTransactions(_txns);
+    }, [rawTxns]);
 
-// Call the getFormatProduct function when the rawProduct state changes
-useEffect(() => {
-getFormatTxn();
-}, [getFormatTxn]);
+    // Call the getFormatProduct function when the rawProduct state changes
+    useEffect(() => {
+    getFormatTxn();
+    }, [getFormatTxn]);
 
   // Define the JSX that will be rendered
   return (

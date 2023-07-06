@@ -13,6 +13,8 @@ import { useDebounce } from "use-debounce";
 // Import our custom useContractSend hook to write a product to the marketplace contract
 import { useContractSend } from "@/hooks/contract/useContractWrite";
 // 
+import { useContractCall } from "@/hooks/contract/useContractRead";
+// Import the erc20 contract abi to get the cUSD balance
 import erc20Instance from "../abi/erc20.json";
 import { useContractApprove } from "@/hooks/contract/useApprove";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
