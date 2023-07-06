@@ -177,7 +177,9 @@ const Product = ({ id, setError, setLoading, clear }: any) => {
               {/* Show the product price in cUSD */}
               Buy for {productPriceFromWei} cUSD
             </button>
+            {/* Display ProductTransactions Modal */}
             <ProductTransactions id={id}/>
+            {/* Display Gift Modal */}
             <GiftModal id={id} price={productPriceFromWei} bigPrice={product.price} setLoading={setLoading} setError={setError} />
           </div>
         </div>
