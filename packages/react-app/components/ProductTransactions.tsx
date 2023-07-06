@@ -2,20 +2,10 @@
 
 // Importing the dependencies
 import { useEffect, useCallback, useState } from "react";
-// import ethers to convert the product price to wei
-import { ethers } from "ethers";
-// Import the useAccount and useBalance hooks to get the user's address and balance
-import { useAccount, useBalance } from "wagmi";
-// Import the toast library to display notifications
-import { toast } from "react-toastify";
-// Import the useDebounce hook to debounce the input fields
-import { useDebounce } from "use-debounce";
 // Import our custom useContractSend hook to write a product to the marketplace contract
 import { useContractCall } from "@/hooks/contract/useContractRead";
-// Import the erc20 contract abi to get the cUSD balance
-import erc20Instance from "../abi/erc20.json";
 
-// Define the interface for the product, an interface is a type that describes the properties of an object
+// Define the interface for the transaction, an interface is a type that describes the properties of an object
 interface Transaction {
     productIndex: number;
     buyer: string;
@@ -27,12 +17,10 @@ interface Transaction {
 const ProductTransactions = ({id}:any) => {
   // The visible state is used to toggle the visibility of the modal
   const [visible, setVisible] = useState(false);
-  //
   const [transactions, setTransactions] = useState<Transaction[]| null>();
-  //
   const { data: rawTxns }: any = useContractCall("readPurchaseTransactions", [id], true);
 
-// Format the product data that we read from the smart contract
+// Format the transaction data that we read from the smart contract
 const getFormatTxn = useCallback(() => {
     if (!rawTxns) return null;
     const _txns: Transaction[] = [];
@@ -56,7 +44,7 @@ const getFormatTxn = useCallback(() => {
   return (
     <div className={"flex flex-row w-full justify-between"}>
       <div>
-        {/* Add Product Button that opens the modal */}
+        {/* Button that opens the modal */}
         <button
           type="button"
           onClick={() => setVisible(true)}
@@ -73,7 +61,7 @@ const getFormatTxn = useCallback(() => {
             className="fixed z-40 overflow-y-auto top-0 w-full h-full left-0"
             id="modal"
           >
-            {/* Form with input fields for the product, that triggers the addProduct function on submit */}
+            {/* Display the modal */}
             <div className="flex items-center justify-center min-height-100vh pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                 <div className="fixed inset-0 transition-opacity">
                     <div className="absolute inset-0 bg-gray-900 opacity-75" />

@@ -2,26 +2,19 @@
 
 // Importing the dependencies
 import { useEffect, useCallback, useState } from "react";
-// import ethers to convert the product price to wei
-import { ethers } from "ethers";
-// Import the useAccount and useBalance hooks to get the user's address and balance
-import { useAccount, useBalance } from "wagmi";
-// Import the toast library to display notifications
-import { toast } from "react-toastify";
-// Import the useDebounce hook to debounce the input fields
+// Import the useAccount hook to get the user's address
+import { useAccount } from "wagmi";
 import { useDebounce } from "use-debounce";
 // Import our custom useContractSend hook to write a product to the marketplace contract
 import { useContractCall } from "@/hooks/contract/useContractRead";
-// Import the erc20 contract abi to get the cUSD balance
-import erc20Instance from "../abi/erc20.json";
-import { useContractSend } from "@/hooks/contract/useContractWrite";
 
+// Transaction object
 interface Transaction {
-    from: string;
-    to: string;
-    productIndex: number;
-    quantity: number;
-    timestamp: number;
+    from: string; // transaction sender
+    to: string; // transaction receiver
+    productIndex: number; // index of product transferred
+    quantity: number; // quantity of product tranferred
+    timestamp: number; // timestamp of transaction
   }
 
 // Define the AddProductModal component
@@ -30,11 +23,12 @@ const TransferTransactions = () => {
    const { address, isConnected } = useAccount();
   // The visible state is used to toggle the visibility of the modal
   const [visible, setVisible] = useState(false);
-    //
+    // State used to store the transactions
     const [transactions, setTransactions] = useState<Transaction[] | null>()
+    // hook used to read all the transactions
     const { data: rawTxns }: any = useContractCall("readTransferTransactions", [], true, address);
   
-    // Format the product data that we read from the smart contract
+    // Format the transaction data that we read from the smart contract
     const getFormatTxn = useCallback(() => {
         if (!rawTxns) return null;
         const _txns: Transaction[] = [];
@@ -76,7 +70,6 @@ const TransferTransactions = () => {
             className="fixed z-40 overflow-y-auto top-0 w-full left-0"
             id="modal"
           >
-            {/* Form with input fields for the product, that triggers the addProduct function on submit */}
             <div className="flex items-center justify-center min-height-100vh pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                 <div className="fixed inset-0 transition-opacity">
                     <div className="absolute inset-0 bg-gray-900 opacity-75" />
