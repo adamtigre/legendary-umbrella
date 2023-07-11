@@ -21,9 +21,9 @@ const GiftModal = ({id, price, bigPrice, setLoading, setError}:any) => {
   // The visible state is used to toggle the visibility of the modal
   const [visible, setVisible] = useState(false);
   // Address of product receiver
-  const [receiver, setReceiver] = useState<string>("0x0000000000000000000000000000000000000000");
+  const [receiver, setReceiver] = useState<string>("");
   // Quantity of product to send
-  const [quantity, setQuantity] = useState<number>(1)
+  const [quantity, setQuantity] = useState<number>(0)
    // Get the user's address and balance
    const { address } = useAccount();
     // The following states are used to debounce the input fields
@@ -42,6 +42,18 @@ const GiftModal = ({id, price, bigPrice, setLoading, setError}:any) => {
 
     // Use the useConnectModal hook to trigger the wallet connect modal
   const { openConnectModal } = useConnectModal();
+
+  // Validate ethereum address
+  function isValidEthereumAddress(address: string): boolean {
+    // Remove the 0x prefix if present
+      const cleanedAddress = address.replace(/^0x/i, '');
+      // Check if the address is a 40-character hexadecimal string
+      const isHex = /^[0-9a-fA-F]{40}$/.test(cleanedAddress);
+      return !isHex;
+    }
+
+    // Controls the Gift button state
+    const isDisabled = !isValidEthereumAddress(receiver) && quantity > 0
 
   // Define the handleGift function which handles the gifting interaction with the smart contract
   const handleGift = async () => {
@@ -85,6 +97,8 @@ const GiftModal = ({id, price, bigPrice, setLoading, setError}:any) => {
       // Once the purchase is complete, clear the loading state
     } finally {
       setLoading(null);
+      setReceiver("");
+      setQuantity(0);
     }
   };
 
@@ -125,10 +139,18 @@ const GiftModal = ({id, price, bigPrice, setLoading, setError}:any) => {
                 >
                     <form onSubmit={gift} className="flex flex-col px-5 py-3">
                         <label>Receiver address</label>
-                        <input onChange={e => setReceiver(e.target.value)} className="w-full bg-gray-100 p-2 mt-2 mb-3" type="text"/>
+                        <input onChange={e => 
+                          setReceiver(e.target.value) 
+                        }
+                        value={receiver}
+                         className="w-full bg-gray-100 p-2 mt-2 mb-3" type="text"/>
                         <label>Quantity</label>
-                        <input onChange={e => setQuantity(Number(e.target.value))} className="w-full bg-gray-100 p-2 mt-2 mb-3" type="number"/>
-                        <button type="submit" className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2">
+                        <input onChange={e => 
+                          setQuantity(Number(e.target.value))
+                        } 
+                        value={quantity}
+                        className="w-full bg-gray-100 p-2 mt-2 mb-3" type="number"/>
+                        <button disabled={!isDisabled} type="submit" className="focus:outline-none text-white bg-green-700 hover:bg-green-800 disabled:bg-green-300 disabled:hover:bg-green-300 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2">
                             Gift = {quantity? quantity * Number(price) : 0} cUSD
                         </button>
                     </form>
